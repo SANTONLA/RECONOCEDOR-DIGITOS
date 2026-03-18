@@ -33,7 +33,7 @@ learn = vision_learner(
 learn.load("mnist_best_weights_only")
 
 # =====================================================
-# PREPROCESSING (ROBUST VERSION)
+# PREPROCESSING FUNCTIONS
 # =====================================================
 def preprocess_image(img):
     if img is None:
@@ -116,7 +116,7 @@ def preprocess_preview(data):
     return preprocess_image(data)
 
 # =====================================================
-# PREDICTION + EXPLANATION + PROBABILITY PLOT
+# PREDICTION
 # =====================================================
 def predict_and_plot(data):
     img = data.get("composite") if isinstance(data, dict) else data
@@ -217,13 +217,7 @@ with gr.Blocks(title="Senior ML Portfolio - MNIST System") as demo:
                 )
             with gr.Column(scale=1):
                 gr.Markdown("### 🖼 Previsualización del preprocesado")
-                preview_img = gr.Image(
-                    label="Preprocessed Image (28x28)",
-                    interactive=False,
-                    type="pil",
-                    height=200,
-                    width=200
-                )
+                preview_img = gr.Image(label="Preprocessed Image (28x28)", interactive=False, type="pil")
 
         with gr.Row():
             with gr.Column(scale=1):
@@ -235,7 +229,7 @@ with gr.Blocks(title="Senior ML Portfolio - MNIST System") as demo:
             with gr.Column(scale=1):
                 gr.Markdown("### 📊 Resultados de Predicción")
                 output_text = gr.Textbox(label="Prediction Output")
-                bar_chart = gr.Plot(label="Probabilidades por dígito (%)", height=150)
+                bar_chart = gr.Plot(label="Probabilidades por dígito (%)")
                 explanation_text = gr.Textbox(label="Model Explanation")
 
         btn_preprocess.click(preprocess_preview, inputs=img_input, outputs=preview_img)
@@ -252,40 +246,18 @@ with gr.Blocks(title="Senior ML Portfolio - MNIST System") as demo:
                 "1️⃣ Original", "2️⃣ Grayscale", "3️⃣ Binarizado", "4️⃣ Fondo invertido", "5️⃣ Centrado + Resize"
             ]):
                 with gr.Column():
-                    gr.Markdown(f"**{title}**")
-                    preview_outputs.append(gr.Image(label=title, height=120, width=120))
+                    preview_outputs.append(gr.Image(label=title))
         btn_preview_pipeline.click(preprocessing_steps_preview, inputs=img_input_pipeline, outputs=preview_outputs)
 
     # ----- Model -----
     with gr.Tab("🧠 Model"):
-        gr.Markdown("""
-        ## Modelo: ResNet18 con Transfer Learning
-        Usamos una Red Residual (ResNet18) preentrenada para clasificar dígitos MNIST.  
-        El Transfer Learning permite aprovechar patrones aprendidos en grandes datasets (ImageNet) 
-        y adaptarlos a nuestro problema de dígitos con pocas imágenes.
-        """)
-        gr.Markdown("""
-        | Característica       | CNN tradicional        | ResNet18 + Transfer Learning |
-        |---------------------|----------------------|------------------------------|
-        | Número de capas      | 5-7                  | 18                           |
-        | Conexiones           | Secuenciales         | Residuales (skip connections)|
-        | Entrenamiento        | Desde cero           | Ajustando pesos preentrenados|
-        | Ventaja              | Simple de entender   | Evita overfitting, converge rápido |
-        | Desventaja           | Menos potente        | Más pesado, requiere GPU para entrenar rápido |
-        """)
-        gr.Markdown("""
-        **Transfer Learning explicado:**  
-        - Los primeros filtros de ResNet18 detectan bordes y formas simples, útiles para cualquier imagen.
-        - Solo se ajusta la última capa (fully connected) para nuestras 10 clases de dígitos.  
-        - Con pocas imágenes de MNIST, conseguimos alta precisión sin entrenar toda la red desde cero.
-        """)
         gr.Markdown("### Visualización de Activaciones (primeras 8)")
         btn_activations = gr.Button("Mostrar Activaciones")
         act_outputs = []
         with gr.Row():
             for i in range(8):
                 with gr.Column():
-                    act_outputs.append(gr.Image(label=f"Act {i+1}", height=120, width=120))
+                    act_outputs.append(gr.Image(label=f"Act {i+1}"))
         btn_activations.click(visualize_activations, inputs=img_input, outputs=act_outputs)
 
     # ----- Deployment -----
