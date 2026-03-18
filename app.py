@@ -169,7 +169,8 @@ def visualize_activations(data):
         return [None]*8
 
     img_pil = preprocess_image(img)
-    img_tensor = torch.tensor(np.array(img_pil)/255.0, dtype=torch.float32).unsqueeze(0).unsqueeze(0)
+    img_tensor = torch.tensor(np.array(img_pil)/255.0, dtype=torch.float32).unsqueeze(0)  # [1,H,W]
+    img_tensor = img_tensor.repeat(1,3,1,1)  # Convertir a 3 canales RGB
 
     activations = []
 
