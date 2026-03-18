@@ -67,7 +67,7 @@
         width:100%;
         height:100%;
         z-index:1;
-        pointer-events:none; /* permite interactuar con botones */
+        pointer-events:none;
     }
 </style>
 </head>
@@ -75,7 +75,7 @@
 
 <h1>Reconocedor de Dígitos</h1>
 <p>¡Bienvenido! Prueba nuestra aplicación de reconocimiento de dígitos entrenada con MNIST y ResNet18. Haz clic en el botón para abrir la app en Hugging Face.</p>
-<a href="TU_URL_DE_HUGGINGFACE" target="_blank" class="btn">Abrir App</a>
+<a href="https://huggingface.co/spaces/Santonla/mnist" target="_blank" class="btn">Abrir App</a>
 <footer>Proyecto en GitHub | &copy; 2026</footer>
 
 <canvas id="matrix"></canvas>
@@ -91,46 +91,48 @@ function resizeCanvas() {
 resizeCanvas();
 window.addEventListener('resize', resizeCanvas);
 
-// ===== CONFIG =====
-const fontSize = 20;
+const fontSize = 18;
 let columns = Math.floor(canvas.width / fontSize);
-let drops = Array(columns).fill(0);
+let drops = [];
 let speedMultiplier = 1;
 
-// ===== INTERACTIVIDAD =====
+// Inicializar drops con profundidad y velocidad aleatoria
+for (let i = 0; i < columns; i++) {
+    drops[i] = {
+        y: Math.random() * canvas.height / fontSize,
+        speed: Math.random() * 2 + 1,
+        size: Math.random() * 18 + 12,
+        opacity: Math.random() * 0.5 + 0.5
+    };
+}
+
+// Interactividad con cursor
 window.addEventListener('mousemove', (e) => {
-    // Aumenta la velocidad según posición horizontal
     speedMultiplier = 1 + (e.clientX / window.innerWidth) * 2;
 });
 
-// ===== FUNCION DRAW =====
 function draw() {
-    // Fondo semitransparente para efecto trazo
-    ctx.fillStyle = 'rgba(30, 60, 114, 0.15)';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    ctx.fillStyle = '#00ff95';
-    ctx.font = fontSize + "px monospace";
+    ctx.fillStyle = 'rgba(30,60,114,0.15)';
+    ctx.fillRect(0,0,canvas.width,canvas.height);
 
     for (let i = 0; i < drops.length; i++) {
+        ctx.fillStyle = `rgba(0,255,149,${drops[i].opacity})`;
+        ctx.font = drops[i].size + "px monospace";
         const text = Math.floor(Math.random() * 10);
-        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+        ctx.fillText(text, i * fontSize, drops[i].y * fontSize);
 
-        // Incrementa posición de caída
-        drops[i] += 1 * speedMultiplier;
+        drops[i].y += drops[i].speed * speedMultiplier;
 
-        // Reinicia columna cuando llega abajo
-        if(drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-            drops[i] = 0;
+        if (drops[i].y * fontSize > canvas.height && Math.random() > 0.975) {
+            drops[i].y = 0;
+            drops[i].speed = Math.random() * 2 + 1;
+            drops[i].size = Math.random() * 18 + 12;
+            drops[i].opacity = Math.random() * 0.5 + 0.5;
         }
     }
 }
 
 setInterval(draw, 50);
-</script>
-
-</body>
-</html>
 </script>
 
 </body>
