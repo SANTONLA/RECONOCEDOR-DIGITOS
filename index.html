@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reconocedor de Dígitos</title>
+    <style>
+        /* ==========================
+           RESET Y FUENTES
+        ========================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 3em;
+            margin-bottom: 0.5em;
+            color: #a0e9fd;
+        }
+
+        p {
+            font-size: 1.2em;
+            margin-bottom: 2em;
+            max-width: 600px;
+            color: #cdeffd;
+        }
+
+        /* ==========================
+           BOTÓN
+        ========================== */
+        .btn {
+            padding: 15px 30px;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #fff;
+            background: linear-gradient(90deg, #00c6ff, #0072ff);
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+            background: linear-gradient(90deg, #00ff95, #00c9ff);
+        }
+
+        /* ==========================
+           FOOTER
+        ========================== */
+        footer {
+            position: absolute;
+            bottom: 20px;
+            font-size: 0.9em;
+            color: #b0e0ff;
+        }
+    </style>
+</head>
+<body>
+    <h1>Reconocedor de Dígitos</h1>
+    <p>¡Bienvenido! Aquí puedes probar nuestra aplicación de reconocimiento de dígitos entrenada con MNIST y ResNet18. Haz clic en el botón para abrir la app en Hugging Face.</p>
+    
+    <a href="TU_URL_DE_HUGGINGFACE" target="_blank" class="btn">Abrir App</a>
+
+    <footer>Proyecto en GitHub | &copy; 2026</footer>
+</body>
+</html>
