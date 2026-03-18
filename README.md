@@ -1,7 +1,3 @@
-# RECONOCEDOR-DIGITOS
-¡Perfecto! Te puedo ayudar a redactar un **README** completo para tu proyecto **RECONOCEDOR DE DÍGITOS** basado en lo que hemos conversado sobre FastAI, MNIST, Gradio y ResNet18. Aquí tienes un ejemplo estructurado y profesional que puedes usar y ajustar:
-
----
 
 # RECONOCEDOR DE DÍGITOS
 
