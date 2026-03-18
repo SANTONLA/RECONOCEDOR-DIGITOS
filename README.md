@@ -102,11 +102,8 @@ learn.export('model/mnist_resnet18.pkl')
 ## Contacto
 
 Si tienes dudas, sugerencias o quieres colaborar:
-📧 [tuemail@dominio.com](mailto:tuemail@dominio.com)
-💬 Grupo de WhatsApp: [enlace al grupo]
+📧 [eltallerdedatos@gmail.com](mailto:tuemail@dominio.com)
+
 
 ---
 
-Si quieres, puedo hacer una **versión aún más visual y llamativa del README**, con **capturas de pantalla de la app**, íconos de flujo del modelo y sección de “Cómo probar en 5 segundos” para que quede más profesional y lista para GitHub.
-
-¿Quieres que haga esa versión mejorada?
