@@ -300,17 +300,42 @@ with gr.Blocks(title="Portfolio ML: Clasificador de Dígitos MNIST") as demo:
         btn_preview_pipeline.click(preprocessing_steps_preview, inputs=img_input, outputs=preview_outputs)
 
     # ----- Dataset -----
+    # ----- Dataset MNIST -----
+    # ----- Dataset ----- 
     with gr.Tab("📚 Dataset MNIST"):
         gr.Markdown("## Historia y Descripción del Dataset MNIST")
         gr.Markdown("""
-        El dataset **MNIST (Modified National Institute of Standards and Technology)** es un conjunto de datos muy conocido 
-        en el mundo del Machine Learning y la visión por computadora. Contiene **70,000 imágenes de dígitos manuscritos** (0-9), 
-        de tamaño 28x28 píxeles en escala de grises, divididas en:
-        - **60,000 imágenes de entrenamiento**
-        - **10,000 imágenes de prueba**
-        Fue creado a partir del dataset original NIST y modificado para normalizar y centrar los dígitos. 
-        Es utilizado principalmente para **pruebas de modelos de clasificación de imágenes** y experimentos de redes neuronales.
-        """)
+            El dataset **MNIST (Modified National Institute of Standards and Technology)** es uno de los conjuntos de datos más icónicos en la historia del Machine Learning y la visión por computadora. Fue creado por **Yann LeCun** y colaboradores a partir del dataset original NIST. Contiene **70,000 imágenes de dígitos manuscritos** (0-9), de tamaño 28x28 píxeles en escala de grises, divididas en:
+            
+            - **60,000 imágenes de entrenamiento**  
+            - **10,000 imágenes de prueba**  
+            
+            El dataset se diseñó para estandarizar el estudio y comparación de modelos de clasificación de dígitos. Cada imagen está centrada y normalizada, eliminando variaciones de escala y posición, lo que permitió a los investigadores enfocarse en el aprendizaje de la forma del dígito.
+            
+            ### Historia de MNIST y LeCun
+            Yann LeCun, junto con Corinna Cortes y Christopher J.C. Burges, popularizó MNIST a fines de los años 90 como un benchmark para redes neuronales y algoritmos de reconocimiento de patrones. MNIST permitió medir el rendimiento de nuevas arquitecturas de redes neuronales de manera consistente y reproducible, lo que ayudó a consolidar el campo del Deep Learning inicial.
+            
+            ### Importancia en ML e IA
+            MNIST es un dataset fundamental para el aprendizaje supervisado y clasificación de imágenes. Su relevancia incluye:
+            
+            - Evaluar y comparar nuevos algoritmos y arquitecturas de redes neuronales.  
+            - Servir como banco de pruebas para técnicas de preprocesamiento, regularización y optimización.  
+            - Proporcionar un entorno simple para enseñar conceptos de visión por computadora e Inteligencia Artificial.  
+            - Establecer benchmarks históricos que muestran la evolución de la IA desde perceptrones simples hasta redes profundas.
+            
+            ### Historia de ResNet y Transfer Learning
+            ResNet (Residual Networks) fue introducida por Kaiming He y colaboradores en 2015 para resolver el problema de degradación en redes muy profundas, donde añadir más capas empeoraba la precisión.  
+            **ResNet18** y **ResNet50** son variantes de ResNet: ResNet18 tiene 18 capas y ResNet50 tiene 50 capas con bloques residuales que permiten el flujo de gradientes más eficiente.  
+            **Transfer Learning** consiste en usar una red preentrenada en un gran dataset (como ImageNet) y ajustarla a un nuevo problema, como MNIST. Esto acelera el aprendizaje y mejora la precisión al reutilizar características generales ya aprendidas.
+            
+            ### Acceso al Dataset
+            El dataset MNIST está disponible públicamente y se puede descargar desde varias fuentes oficiales:
+            
+            - Página oficial de Yann LeCun – MNIST  
+            - Librerías como PyTorch o TensorFlow  
+            - **Para este proyecto en concreto**, se utilizó la versión descargada desde Kaggle:  
+            [Kaggle – MNIST Dataset](https://www.kaggle.com/datasets/mannu1170/minst-dataset)
+                """)
 
     # ----- Activaciones -----
     with gr.Tab("🧠 Modelo"):
