@@ -7,7 +7,7 @@ import gradio as gr
 import matplotlib.pyplot as plt
 
 # =====================================================
-# MODEL INITIALIZATION
+# INICIALIZACIÓN DEL MODELO
 # =====================================================
 dummy_imgs = torch.zeros((1, 28, 28))
 dummy_lbls = torch.tensor([0])
@@ -33,7 +33,7 @@ learn = vision_learner(
 learn.load("mnist_best_weights_only")
 
 # =====================================================
-# PREPROCESSING FUNCTIONS
+# FUNCIONES DE PREPROCESAMIENTO
 # =====================================================
 def preprocess_image(img):
     if img is None:
@@ -116,12 +116,12 @@ def preprocess_preview(data):
     return preprocess_image(data)
 
 # =====================================================
-# PREDICTION
+# PREDICCIÓN
 # =====================================================
 def predict_and_plot(data):
     img = data.get("composite") if isinstance(data, dict) else data
     if img is None:
-        return "No image provided", None, ""
+        return "No se ha proporcionado ninguna imagen", None, ""
     
     start_time = time.time()
     img_pil = preprocess_image(img)
@@ -139,7 +139,7 @@ def predict_and_plot(data):
     output_text = (
         f"{label_text}\n"
         f"Confianza: {confidence:.2f}%\n"
-        f"Inference time: {round((time.time()-start_time)*1000,2)} ms"
+        f"Tiempo de inferencia: {round((time.time()-start_time)*1000,2)} ms"
     )
 
     top2_idx = np.argsort(probs.numpy())[::-1][:2]
@@ -161,7 +161,7 @@ def predict_and_plot(data):
     return output_text, fig, explanation
 
 # =====================================================
-# ACTIVATION VISUALIZATION
+# VISUALIZACIÓN DE ACTIVACIONES
 # =====================================================
 def visualize_activations(data):
     img = data.get("composite") if isinstance(data, dict) else data
@@ -169,55 +169,36 @@ def visualize_activations(data):
         return [None]*8
 
     img_pil = preprocess_image(img)
-
-    # 🔹 Convertir correctamente a tensor
     img_array = np.array(img_pil) / 255.0
-    img_tensor = torch.tensor(img_array, dtype=torch.float32)
-
-    # [1,1,H,W]
-    img_tensor = img_tensor.unsqueeze(0).unsqueeze(0)
-
-    # [1,3,H,W]
+    img_tensor = torch.tensor(img_array, dtype=torch.float32).unsqueeze(0).unsqueeze(0)
     img_tensor = img_tensor.repeat(1,3,1,1)
-
-    # 🔹 Asegurar mismo dispositivo que el modelo
     device = next(learn.model.parameters()).device
     img_tensor = img_tensor.to(device)
 
     activations = None
-
     def hook_fn(module, input, output):
         nonlocal activations
         activations = output.detach().cpu()
 
-    # 🔥 CAPA CORRECTA EN FASTAI
     layer = learn.model[0][0]
-
     handle = layer.register_forward_hook(hook_fn)
-
     with torch.no_grad():
         _ = learn.model(img_tensor)
-
     handle.remove()
 
     if activations is None:
         return [None]*8
 
     activations = activations.squeeze(0)
-
     act_imgs = []
 
     for i in range(min(8, activations.shape[0])):
         act_img = activations[i].numpy()
-
-        # 🔹 Evitar divisiones raras
         if act_img.max() == act_img.min():
             act_img = np.zeros_like(act_img)
         else:
             act_img = (act_img - act_img.min()) / (act_img.max() - act_img.min())
-
         act_img = (act_img * 255).astype(np.uint8)
-
         act_imgs.append(add_frame(Image.fromarray(act_img)))
 
     while len(act_imgs) < 8:
@@ -226,13 +207,12 @@ def visualize_activations(data):
     return act_imgs
 
 # =====================================================
-# GRADIO UI
+# INTERFAZ GRADIO
 # =====================================================
-with gr.Blocks(title="Senior ML Portfolio - MNIST System") as demo:
-    gr.Markdown("# 🧠 End-to-End ML System: MNIST Digit Classifier")
+with gr.Blocks(title="Portfolio ML: Clasificador de Dígitos MNIST") as demo:
+    gr.Markdown("# 🧠 Sistema Completo de ML: Clasificador de Dígitos MNIST")
     gr.Markdown(
-        "Proyecto completo de Machine Learning: dibuja o sube cualquier dígito, "
-        "y el sistema lo preprocesa y clasifica automáticamente."
+        "Dibuja o sube un dígito y el sistema lo preprocesa y clasifica automáticamente."
     )
 
     # ----- Demo -----
@@ -249,40 +229,40 @@ with gr.Blocks(title="Senior ML Portfolio - MNIST System") as demo:
                 )
             with gr.Column(scale=1):
                 gr.Markdown("### 🖼 Previsualización del preprocesado")
-                preview_img = gr.Image(label="Preprocessed Image (28x28)", interactive=False, type="pil")
+                preview_img = gr.Image(label="Imagen Preprocesada (28x28)", interactive=False, type="pil")
 
         with gr.Row():
             with gr.Column(scale=1):
                 gr.Markdown("### ⚡ Pasos a seguir")
-                btn_preprocess = gr.Button("1️⃣ Preview 28x28")
+                btn_preprocess = gr.Button("1️⃣ Previsualizar 28x28")
                 gr.Markdown("Ver cómo se procesa tu imagen")
-                btn_predict = gr.Button("2️⃣ Run Inference")
+                btn_predict = gr.Button("2️⃣ Ejecutar Predicción")
                 gr.Markdown("Obtener predicción y probabilidades")
             with gr.Column(scale=1):
                 gr.Markdown("### 📊 Resultados de Predicción")
-                output_text = gr.Textbox(label="Prediction Output")
+                output_text = gr.Textbox(label="Salida de Predicción")
                 bar_chart = gr.Plot(label="Probabilidades por dígito (%)")
-                explanation_text = gr.Textbox(label="Model Explanation")
+                explanation_text = gr.Textbox(label="Explicación del Modelo")
 
         btn_preprocess.click(preprocess_preview, inputs=img_input, outputs=preview_img)
         btn_predict.click(predict_and_plot, inputs=img_input, outputs=[output_text, bar_chart, explanation_text])
 
-    # ----- Data & Preprocessing -----
-    with gr.Tab("📊 Data & Preprocessing"):
+    # ----- Preprocesamiento -----
+    with gr.Tab("📊 Datos & Preprocesamiento"):
         gr.Markdown("## Pipeline de Preprocesamiento Paso a Paso")
         img_input_pipeline = img_input
         btn_preview_pipeline = gr.Button("Mostrar Preprocesamiento")
         with gr.Row():
             preview_outputs = []
             for i, title in enumerate([
-                "1️⃣ Original", "2️⃣ Grayscale", "3️⃣ Binarizado", "4️⃣ Fondo invertido", "5️⃣ Centrado + Resize"
+                "1️⃣ Original", "2️⃣ Escala de Grises", "3️⃣ Binarizado", "4️⃣ Fondo Invertido", "5️⃣ Centrado + Redimensionado"
             ]):
                 with gr.Column():
                     preview_outputs.append(gr.Image(label=title))
         btn_preview_pipeline.click(preprocessing_steps_preview, inputs=img_input_pipeline, outputs=preview_outputs)
 
-    # ----- Model -----
-    with gr.Tab("🧠 Model"):
+    # ----- Activaciones -----
+    with gr.Tab("🧠 Modelo"):
         gr.Markdown("### Visualización de Activaciones (primeras 8)")
         btn_activations = gr.Button("Mostrar Activaciones")
         act_outputs = []
@@ -293,24 +273,24 @@ with gr.Blocks(title="Senior ML Portfolio - MNIST System") as demo:
         btn_activations.click(visualize_activations, inputs=img_input, outputs=act_outputs)
 
     # ----- Deployment -----
-    with gr.Tab("⚙️ Deployment"):
+    with gr.Tab("⚙️ Despliegue"):
         gr.Markdown("""
-        - Separación training / inference
+        - Separación de entrenamiento / inferencia
         - Carga de pesos (.pth)
         - Deploy en Hugging Face Spaces
         """)
 
-    # ----- Engineering -----
-    with gr.Tab("🏗 Engineering"):
+    # ----- Ingeniería -----
+    with gr.Tab("🏗 Ingeniería"):
         gr.Markdown("""
         - Pipeline consistente
-        - Evitado load_learner
+        - Evita load_learner
         - Preprocesado robusto
         - Control de confianza y explicabilidad
         """)
 
-    # ----- Confusion Matrix -----
-    with gr.Tab("📉 Confusion Matrix"):
-        gr.Image(value="confusion_matrix.png", label="Confusion Matrix")
+    # ----- Matriz de Confusión -----
+    with gr.Tab("📉 Matriz de Confusión"):
+        gr.Image(value="confusion_matrix.png", label="Matriz de Confusión")
 
 demo.launch()
