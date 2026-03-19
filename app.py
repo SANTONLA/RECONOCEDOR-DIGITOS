@@ -246,6 +246,27 @@ with gr.Blocks(title="Portfolio ML: Clasificador de Dígitos MNIST") as demo:
 
         btn_preprocess.click(preprocess_preview, inputs=img_input, outputs=preview_img)
         btn_predict.click(predict_and_plot, inputs=img_input, outputs=[output_text, bar_chart, explanation_text])
+        # ----- Dataset -----
+    with gr.Tab("📚 Dataset MNIST"):
+        gr.Markdown("## Historia y Descripción del Dataset MNIST")
+        gr.Markdown("""
+        El dataset **MNIST (Modified National Institute of Standards and Technology)** es un conjunto de datos muy conocido 
+        en el mundo del Machine Learning y la visión por computadora. Contiene **70,000 imágenes de dígitos manuscritos** (0-9), 
+        de tamaño 28x28 píxeles en escala de grises, divididas en:
+    
+        - **60,000 imágenes de entrenamiento**
+        - **10,000 imágenes de prueba**
+    
+        Fue creado a partir del dataset original NIST y modificado para normalizar y centrar los dígitos. 
+        Es utilizado principalmente para **pruebas de modelos de clasificación de imágenes** y experimentos de redes neuronales.
+        
+        ### Propiedades:
+        - Cada imagen es en **escala de grises**, 28x28 píxeles.
+        - Cada etiqueta corresponde a un **dígito del 0 al 9**.
+        - Muy utilizado como dataset de **benchmark** en Deep Learning.
+        
+        Puedes dibujar un dígito o subirlo en la pestaña Demo para probar cómo tu modelo predice y visualiza las activaciones.
+        """)
 
     # ----- Preprocesamiento -----
     with gr.Tab("📊 Datos & Preprocesamiento"):
