@@ -207,13 +207,45 @@ def visualize_activations(data):
     return act_imgs
 
 # =====================================================
-# INTERFAZ GRADIO
+# SWIMLANE / CRONOGRAMA
+# =====================================================
+def plot_swimlane():
+    etapas = [
+        "Definición del problema",
+        "Análisis del dataset",
+        "Preprocesamiento",
+        "Entrenamiento del modelo",
+        "Evaluación y ajuste",
+        "Visualización y explicabilidad",
+        "Despliegue y testing",
+        "Documentación y presentación"
+    ]
+    
+    inicio = [0, 1, 2, 4, 7, 9, 11, 13]
+    duracion = [1, 1, 2, 3, 2, 2, 2, 1]
+    colores = ['skyblue', 'lightgreen', 'orange', 'violet', 'salmon', 'cyan', 'gold', 'lightgray']
+    
+    fig, ax = plt.subplots(figsize=(10,5))
+    for i, (etapa, start, dur, color) in enumerate(zip(etapas, inicio, duracion, colores)):
+        ax.barh(i, dur, left=start, color=color, edgecolor='black')
+        ax.text(start + dur/2, i, etapa, va='center', ha='center', fontsize=9, color='black', fontweight='bold')
+    
+    ax.set_yticks(range(len(etapas)))
+    ax.set_yticklabels([])
+    ax.set_xlabel("Días")
+    ax.set_title("📊 Cronograma del Proyecto - Swimlane")
+    ax.set_xlim(0, max([inicio[i]+duracion[i] for i in range(len(etapas))]) + 1)
+    ax.invert_yaxis()
+    ax.grid(axis='x', linestyle='--', alpha=0.5)
+    
+    return fig
+
+# =====================================================
+# INTERFAZ GRADIO COMPLETA
 # =====================================================
 with gr.Blocks(title="Portfolio ML: Clasificador de Dígitos MNIST") as demo:
     gr.Markdown("# 🧠 Sistema Completo de ML: Clasificador de Dígitos MNIST")
-    gr.Markdown(
-        "Dibuja o sube un dígito y el sistema lo preprocesa y clasifica automáticamente."
-    )
+    gr.Markdown("Dibuja o sube un dígito y el sistema lo preprocesa y clasifica automáticamente.")
 
     # ----- Demo -----
     with gr.Tab("🏠 Demo"):
@@ -246,45 +278,44 @@ with gr.Blocks(title="Portfolio ML: Clasificador de Dígitos MNIST") as demo:
 
         btn_preprocess.click(preprocess_preview, inputs=img_input, outputs=preview_img)
         btn_predict.click(predict_and_plot, inputs=img_input, outputs=[output_text, bar_chart, explanation_text])
-        # ----- Dataset -----
+
+    # ----- Datos & Preprocesamiento -----
+    with gr.Tab("📊 Datos & Preprocesamiento"):
+        gr.Markdown("## Pipeline de Preprocesamiento Paso a Paso")
+        gr.Markdown("""
+        Cada paso del preprocesamiento ayuda a que el modelo aprenda mejor:
+        - **Grayscale**: convertimos a escala de grises para simplificar.
+        - **Binarizado**: diferenciamos el dígito del fondo.
+        - **Fondo invertido**: asegurar consistencia del fondo y dígito.
+        - **Centrado + Redimensionado**: todos los dígitos a 28x28 píxeles y centrados.
+        """)
+        btn_preview_pipeline = gr.Button("Mostrar Preprocesamiento")
+        preview_outputs = []
+        with gr.Row():
+            for i, title in enumerate([
+                "1️⃣ Original", "2️⃣ Escala de Grises", "3️⃣ Binarizado", "4️⃣ Fondo Invertido", "5️⃣ Centrado + Redimensionado"
+            ]):
+                with gr.Column():
+                    preview_outputs.append(gr.Image(label=title))
+        btn_preview_pipeline.click(preprocessing_steps_preview, inputs=img_input, outputs=preview_outputs)
+
+    # ----- Dataset -----
     with gr.Tab("📚 Dataset MNIST"):
         gr.Markdown("## Historia y Descripción del Dataset MNIST")
         gr.Markdown("""
         El dataset **MNIST (Modified National Institute of Standards and Technology)** es un conjunto de datos muy conocido 
         en el mundo del Machine Learning y la visión por computadora. Contiene **70,000 imágenes de dígitos manuscritos** (0-9), 
         de tamaño 28x28 píxeles en escala de grises, divididas en:
-    
         - **60,000 imágenes de entrenamiento**
         - **10,000 imágenes de prueba**
-    
         Fue creado a partir del dataset original NIST y modificado para normalizar y centrar los dígitos. 
         Es utilizado principalmente para **pruebas de modelos de clasificación de imágenes** y experimentos de redes neuronales.
-        
-        ### Propiedades:
-        - Cada imagen es en **escala de grises**, 28x28 píxeles.
-        - Cada etiqueta corresponde a un **dígito del 0 al 9**.
-        - Muy utilizado como dataset de **benchmark** en Deep Learning.
-        
-        Puedes dibujar un dígito o subirlo en la pestaña Demo para probar cómo tu modelo predice y visualiza las activaciones.
         """)
-
-    # ----- Preprocesamiento -----
-    with gr.Tab("📊 Datos & Preprocesamiento"):
-        gr.Markdown("## Pipeline de Preprocesamiento Paso a Paso")
-        img_input_pipeline = img_input
-        btn_preview_pipeline = gr.Button("Mostrar Preprocesamiento")
-        with gr.Row():
-            preview_outputs = []
-            for i, title in enumerate([
-                "1️⃣ Original", "2️⃣ Escala de Grises", "3️⃣ Binarizado", "4️⃣ Fondo Invertido", "5️⃣ Centrado + Redimensionado"
-            ]):
-                with gr.Column():
-                    preview_outputs.append(gr.Image(label=title))
-        btn_preview_pipeline.click(preprocessing_steps_preview, inputs=img_input_pipeline, outputs=preview_outputs)
 
     # ----- Activaciones -----
     with gr.Tab("🧠 Modelo"):
         gr.Markdown("### Visualización de Activaciones (primeras 8)")
+        gr.Markdown("Cada activación muestra cómo los primeros filtros de la red responden a diferentes partes del dígito.")
         btn_activations = gr.Button("Mostrar Activaciones")
         act_outputs = []
         with gr.Row():
@@ -304,14 +335,82 @@ with gr.Blocks(title="Portfolio ML: Clasificador de Dígitos MNIST") as demo:
     # ----- Ingeniería -----
     with gr.Tab("🏗 Ingeniería"):
         gr.Markdown("""
-        - Pipeline consistente
-        - Evita load_learner
-        - Preprocesado robusto
-        - Control de confianza y explicabilidad
+        ## 📌 Ingeniería del Proyecto
+    
+        En esta sección mostramos aspectos clave de la implementación, arquitectura y decisiones técnicas del proyecto MNIST:
+        - Pipeline consistente y reproducible
+        - Evitación de `load_learner` para mantener control sobre el preprocesado
+        - Preprocesado robusto que maneja diferentes formatos de entrada
+        - Control de confianza y explicabilidad de las predicciones
         """)
-
+        
+        # 🔹 Transfer Learning con ResNet18
+        gr.Markdown("### 🔹 Transfer Learning con ResNet18")
+        gr.Markdown(
+            "Se utilizó la arquitectura ResNet18 preentrenada como extractor de características, "
+            "lo que permite un aprendizaje más rápido y preciso comparado con una CNN desde cero."
+        )
+        gr.Image(
+            value="https://huggingface.co/spaces/Santonla/mnist/resolve/main/imagenes/TransferlearningwithResNet18.png",
+            label="Transfer Learning ResNet18",
+            type="pil",
+            interactive=False
+        )
+    
+        # 🔹 Comparación CNN tradicional vs ResNet18
+        gr.Markdown("### 🔹 Comparación CNN tradicional vs ResNet18")
+        gr.Markdown(
+            "ResNet18 logra mejor extracción de características profundas, evitando el problema de vanishing gradients "
+            "y permitiendo capas más profundas que mejoran la precisión de clasificación."
+        )
+        gr.Image(
+            value="https://huggingface.co/spaces/Santonla/mnist/resolve/main/imagenes/CNNvsResNet18.png",
+            label="CNN vs ResNet18",
+            type="pil",
+            interactive=False
+        )
+    
+        # 🔹 Fastai vs PyTorch
+        gr.Markdown("### 🔹 Fastai vs PyTorch puro")
+        gr.Markdown(
+            "Fastai proporciona abstracciones y utilidades que simplifican la construcción del pipeline completo, "
+            "mientras que PyTorch puro ofrece control más granular. Esta comparación nos ayudó a optimizar "
+            "velocidad y robustez del proyecto."
+        )
+        gr.Image(
+            value="https://huggingface.co/spaces/Santonla/mnist/resolve/main/imagenes/fastfaiv%20pytorch.png",
+            label="Fastai vs PyTorch",
+            type="pil",
+            interactive=False
+        )
+    
+        # 🔹 Problemas y soluciones
+        gr.Markdown("### ⚠️ Problemas encontrados y cómo se resolvieron")
+        gr.Markdown("""
+        - Diferentes formatos de imagen de entrada: resuelto con un preprocesado robusto y centrado.
+        - Activaciones que no se visualizaban correctamente: ajustando el hook a la capa correcta y manejando tensores de 3 canales.
+        - Confusiones entre dígitos similares: control de confianza y explicación del top2.
+        - Tiempo de inferencia y eficiencia: uso de ResNet18 y transfer learning.
+        - Mantener reproducibilidad: pipeline consistente y documentación paso a paso.
+        """)
+        
+        # 🔹 Ideas adicionales
+        gr.Markdown("### 💡 Buenas prácticas destacadas")
+        gr.Markdown("""
+        - Mantener un pipeline modular facilita la integración de nuevas mejoras.
+        - Documentar cada etapa ayuda en colaboración y reproducibilidad.
+        - Visualizar activaciones y resultados intermedios aumenta la interpretabilidad.
+        - Guardar pesos y resultados parciales permite volver atrás y probar ajustes sin repetir todo.
+        """)
     # ----- Matriz de Confusión -----
     with gr.Tab("📉 Matriz de Confusión"):
+        gr.Markdown("La matriz de confusión muestra qué dígitos son confundidos con otros por el modelo.")
         gr.Image(value="confusion_matrix.png", label="Matriz de Confusión")
+
+    # ----- Cronograma / Swimlane -----
+    with gr.Tab("⏱ Cronograma / Swimlane"):
+        gr.Markdown("## 🗓 Visualización del proyecto por etapas (Swimlane)")
+        gr.Markdown("Cada barra representa una etapa del proyecto, su inicio y duración aproximada.")
+        swimlane_fig = gr.Plot(value=plot_swimlane(), label="Cronograma Swimlane")
 
 demo.launch()
