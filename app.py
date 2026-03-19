@@ -169,24 +169,55 @@ def visualize_activations(data):
         return [None]*8
 
     img_pil = preprocess_image(img)
-    img_tensor = torch.tensor(np.array(img_pil)/255.0, dtype=torch.float32).unsqueeze(0)  # [1,H,W]
-    img_tensor = img_tensor.repeat(1,3,1,1)  # Convertir a 3 canales RGB
 
-    activations = []
+    # 🔹 Convertir correctamente a tensor
+    img_array = np.array(img_pil) / 255.0
+    img_tensor = torch.tensor(img_array, dtype=torch.float32)
+
+    # [1,1,H,W]
+    img_tensor = img_tensor.unsqueeze(0).unsqueeze(0)
+
+    # [1,3,H,W]
+    img_tensor = img_tensor.repeat(1,3,1,1)
+
+    # 🔹 Asegurar mismo dispositivo que el modelo
+    device = next(learn.model.parameters()).device
+    img_tensor = img_tensor.to(device)
+
+    activations = None
 
     def hook_fn(module, input, output):
         nonlocal activations
-        activations = output.detach().squeeze(0)
+        activations = output.detach().cpu()
 
-    handle = learn.model.conv1.register_forward_hook(hook_fn)
+    # 🔥 CAPA CORRECTA EN FASTAI
+    layer = learn.model[0][0]
+
+    handle = layer.register_forward_hook(hook_fn)
+
     with torch.no_grad():
         _ = learn.model(img_tensor)
+
     handle.remove()
 
+    if activations is None:
+        return [None]*8
+
+    activations = activations.squeeze(0)
+
     act_imgs = []
+
     for i in range(min(8, activations.shape[0])):
         act_img = activations[i].numpy()
-        act_img = ((act_img - act_img.min()) / (act_img.max() - act_img.min() + 1e-5) * 255).astype(np.uint8)
+
+        # 🔹 Evitar divisiones raras
+        if act_img.max() == act_img.min():
+            act_img = np.zeros_like(act_img)
+        else:
+            act_img = (act_img - act_img.min()) / (act_img.max() - act_img.min())
+
+        act_img = (act_img * 255).astype(np.uint8)
+
         act_imgs.append(add_frame(Image.fromarray(act_img)))
 
     while len(act_imgs) < 8:
